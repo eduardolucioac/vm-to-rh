@@ -33,13 +33,13 @@ This is free software and you are equally free to specify any amount of money yo
    * [Resizing filesystems (preemptively)](#resizing-filesystems-preemptively)
       + [Resizing the filesystem on /dev/sda2](#resizing-the-filesystem-on-devsda2)
       + [Reinitializing the swap partition](#reinitializing-the-swap-partition)
-      + [Adjusting /etc/fstab (if necessary)](#adjusting-etcfstab-if-necessary)
    * [Maintain the transposed operating system](#maintain-the-transposed-operating-system)
       + [Mount the @ Subvolume to /mnt](#mount-the--subvolume-to-mnt)
       + [Mount the Necessary Bind Mounts](#mount-the-necessary-bind-mounts)
       + [Mount the EFI Partition](#mount-the-efi-partition)
       + [Mount /@home](#mount-home)
       + [Chroot into the mounted environment](#chroot-into-the-mounted-environment)
+      + [Adjust /etc/fstab (if necessary)](#adjust-etcfstab-if-necessary)
       + [Reinstall GRUB](#reinstall-grub)
    * [Generate the GRUB Configuration](#generate-the-grub-configuration)
       + [Exit the Chroot and Reboot](#exit-the-chroot-and-reboot)
@@ -161,11 +161,11 @@ makes the VDI file accessible as if it were a physical disk.
 
 ```
 modprobe nbd max_part=8
-qemu-nbd -c /dev/nbd0 /mnt/vdi/yourfile.vdi
+qemu-nbd -c /dev/nbd0 /mnt/vdi/your_vdi_file.vdi
 ```
 
-Replace "/mnt/vdi/yourfile.vdi" with the path to your VDI file on the removable disk.
-This command connects the VDI file to the "/dev/nbd0" device.
+Replace "/mnt/vdi/your_vdi_file.vdi" with the path to your VDI file on the USB data
+device.This command connects the VDI file to the "/dev/nbd0" device.
 
 ## Transpose data from the source partitions
 
@@ -242,22 +242,6 @@ swapon /dev/sda3
 
 **NOTE:** This ensures the swap space is correctly set up for the new partition size.
 
-### Adjusting /etc/fstab (if necessary)
-
-**NOTE:** Since you used the "dd" utility to transpose the partitions, the UUIDs
-will also be transposed. However, in case of any problems you can follow the procedures
-in this section.
-
-Use the blkid command to find the UUIDs of the new partitions...
-
-**EXAMPLE**
-
-```
-blkid /dev/sda1 /dev/sda2 /dev/sda3
-```
-
-**NOTE:** The "UUID" of the boot partition is usually a shorter value (eg.: `UUID="CE4C-CFB1"`).
-
 ## Maintain the transposed operating system
 
 Once the operating system has been transposed, some maintenance is required to make
@@ -311,6 +295,28 @@ chroot /mnt
 ```
 
 **IMPORTANT:** All subsequent operations must be performed inside your chroot environment.
+
+### Adjust /etc/fstab (if necessary)
+
+**NOTE:** Since you used the "dd" utility to transpose the partitions, the UUIDs
+will also be transposed. However, we recommend that, preemptively, you follow the
+procedures in this section.
+
+Use the blkid command to find the UUIDs of the new partitions...
+
+**EXAMPLE**
+
+```
+blkid /dev/sda1 /dev/sda2 /dev/sda3
+```
+
+**NOTE:** The "UUID" of the boot partition is usually a shorter value (eg.: `UUID="CE4C-CFB1"`).
+
+Adjust `/etc/fstab` UUIDs and other configuration (if necessary)...
+
+```
+nano /etc/fstab
+```
 
 ### Reinstall GRUB
 
