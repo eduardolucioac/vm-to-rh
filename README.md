@@ -22,7 +22,28 @@ This is free software and you are equally free to specify any amount of money yo
 
 ## Table of Contents
 
-BLAH! BLAH! BLAH! BLAH! BLAH! BLAH!
+   * [Install Manjaro (KDE) Linux on a Virtual Machine](#install-manjaro-kde-linux-on-a-virtual-machine)
+   * [Writing a Manjaro (KDE) Linux ISO (Live DVD) to an USB data device](#writing-a-manjaro-kde-linux-iso-live-dvd-to-an-usb-data-device)
+   * [Backup data on the target physical disk](#backup-data-on-the-target-physical-disk)
+   * [Boot using the Manjaro live DVD](#boot-using-the-manjaro-live-dvd)
+   * [Partition/Adjust the target disk](#partitionadjust-the-target-disk)
+   * [Mount the USB data device](#mount-the-usb-data-device)
+   * [Mount the VDI file](#mount-the-vdi-file)
+   * [Transpose data from the source partitions](#transpose-data-from-the-source-partitions)
+   * [Resizing filesystems (preemptively)](#resizing-filesystems-preemptively)
+      + [Resizing the filesystem on /dev/sda2](#resizing-the-filesystem-on-devsda2)
+      + [Reinitializing the swap partition](#reinitializing-the-swap-partition)
+      + [Adjusting /etc/fstab (if necessary)](#adjusting-etcfstab-if-necessary)
+   * [Maintain the transposed operating system](#maintain-the-transposed-operating-system)
+      + [Mount the @ Subvolume to /mnt](#mount-the--subvolume-to-mnt)
+      + [Mount the Necessary Bind Mounts](#mount-the-necessary-bind-mounts)
+      + [Mount the EFI Partition](#mount-the-efi-partition)
+      + [Mount /@home](#mount-home)
+      + [Chroot into the mounted environment](#chroot-into-the-mounted-environment)
+      + [Reinstall GRUB](#reinstall-grub)
+   * [Generate the GRUB Configuration](#generate-the-grub-configuration)
+      + [Exit the Chroot and Reboot](#exit-the-chroot-and-reboot)
+- [About](#about)
 
 ## Install Manjaro (KDE) Linux on a Virtual Machine
 
