@@ -79,7 +79,7 @@ Ensure that all important data on the target physical disk is backed up.
 
 ## Boot using the Manjaro live DVD
 
-Connect the USB data device and boot your target physical system using the Manjaro "live DVD".
+Connect the USB data device with Manjaro "live DVD" and boot your target physical system.
 
 ## Partition/Adjust the target disk
 
