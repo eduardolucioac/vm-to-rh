@@ -31,7 +31,7 @@ This is free software and you are equally free to specify any amount of money yo
    * [Mount the VDI file](#mount-the-vdi-file)
    * [Transpose data from the source partitions](#transpose-data-from-the-source-partitions)
    * [Resizing filesystems (preemptively)](#resizing-filesystems-preemptively)
-      + [Resizing the filesystem on /dev/sda2](#resizing-the-filesystem-on-devsda2)
+      + [Resizing the filesystem on /dev/nvme0n1p2](#resizing-the-filesystem-on-devnvme0n1p2)
       + [Reinitializing the swap partition](#reinitializing-the-swap-partition)
    * [Maintain the transposed operating system](#maintain-the-transposed-operating-system)
       + [Mount the @ Subvolume to /mnt](#mount-the--subvolume-to-mnt)
@@ -50,6 +50,10 @@ This is free software and you are equally free to specify any amount of money yo
 Download a Manjaro (KDE) Linux installation ISO and prepare the entire setup of your work Operating System safely, calmly, with the comfort of a Virtual Machine. 🤭
 
 Make a note of how the partitions are configured. Use the `fdisk -l` command to see this information.
+
+**PLUS:** Other options for checking the data on the source partitions are "blkid", "parted -l", "partitionmanager" and "gparted".
+
+**TIP:** Name and label your partitions to avoid mistakes and make them easier to identify during the transposition process.
 
 Finally, copy the Virtual Disk Image (VDI) file to a USB data device.
 
@@ -81,6 +85,8 @@ Ensure that all important data on the target physical disk is backed up.
 
 Connect the USB data device with Manjaro "live DVD" and boot your target physical system.
 
+**IMPORTANT:** For the presented scheme to work as expected you must boot with EFI support.
+
 ## Partition/Adjust the target disk
 
 Install the partition utility...
@@ -91,6 +97,8 @@ pamac install --no-confirm --no-upgrade partitionmanager
 ```
 
 Use the "partitionmanager" partition utility to create partitions.
+
+**PLUS:** The "gparted" is also a good option to create partitions.
 
 Create your partitions according to the information noted in the previous step or
 according to your needs.
@@ -104,13 +112,13 @@ To help with this process we have the example table...
 **EXAMPLE**
 
 ```
-.----------------------------------------------------------------------------------.
-| ROLE | PARTITION | TYPE      | MOUNT POINT | LABEL | PARTITION NAME | SIZE       |
-|----------------------------------------------------------------------------------|
-| BOOT | /dev/sda1 | fat32     | /boot/efi   |       |                | 300,00 MiB |
-| OS   | /dev/sda2 | btrfs     | /           |       | root           |   X,XX GiB |
-| SWAP | /dev/sda3 | linuxswap | swap        | swap  |                |   X,XX GiB |
-'----------------------------------------------------------------------------------'
+.---------------------------------------------------------------------------------------.
+| ROLE | PARTITION      | TYPE      | MOUNT POINT | LABEL | PARTITION NAME | SIZE       |
+|---------------------------------------------------------------------------------------|
+| BOOT | /dev/nvme0n1p1 | fat32     | /boot/efi   |       |                | 300,00 MiB |
+| OS   | /dev/nvme0n1p2 | btrfs     | /           |       | root           |   X,XX GiB |
+| SWAP | /dev/nvme0n1p3 | linuxswap | swap        | swap  |                |   X,XX GiB |
+'---------------------------------------------------------------------------------------'
 ```
 
 - For "BOOT" a partition with *300.00 MiB* is completely sufficient.
@@ -134,8 +142,8 @@ Mount the USB data device that contains the VDI file...
 **EXAMPLE**
 
 ```
-sudo mkdir /mnt/vdi
-sudo mount /dev/sdb1 /mnt/vdi
+mkdir /mnt/vdi
+mount /dev/sdc1 /mnt/vdi
 ```
 
 **TIP:** To identify your USB device target partition, use the following command...
@@ -185,9 +193,9 @@ Device      Type
 
 ```
 Device      Type
-/dev/sda1   EFI System
-/dev/sda2   Linux filesystem
-/dev/sda3   Linux swap
+/dev/nvme0n1p1   EFI System
+/dev/nvme0n1p2   Linux filesystem
+/dev/nvme0n1p3   Linux swap
 ```
 
 ... run the following commands to transpose data from the source partitions to the
@@ -196,9 +204,9 @@ destination partitions created in the previous step...
 **EXAMPLE**
 
 ```
-dd if=/dev/nbd0p1 of=/dev/sda1 bs=4M status=progress
-dd if=/dev/nbd0p2 of=/dev/sda2 bs=4M status=progress
-dd if=/dev/nbd0p3 of=/dev/sda3 bs=4M status=progress
+dd if=/dev/nbd0p1 of=/dev/nvme0n1p1 bs=4M status=progress
+dd if=/dev/nbd0p2 of=/dev/nvme0n1p2 bs=4M status=progress
+dd if=/dev/nbd0p3 of=/dev/nvme0n1p3 bs=4M status=progress
 ```
 
 ## Resizing filesystems (preemptively)
@@ -209,13 +217,13 @@ partitions.
 
 **NOTE:** We recommend that filesystem resizing operations be done preemptively.
 
-### Resizing the filesystem on /dev/sda2
+### Resizing the filesystem on /dev/nvme0n1p2
 
 **Create a mount point and mount the partition**
 
 ```
 mkdir /mnt/temp_btrfs
-mount /dev/sda2 /mnt/temp_btrfs
+mount /dev/nvme0n1p2 /mnt/temp_btrfs
 ```
 
 **Resize the filesystem**
@@ -236,8 +244,8 @@ rmdir /mnt/temp_btrfs
 **Reinitialize swap**
 
 ```
-mkswap /dev/sda3
-swapon /dev/sda3
+mkswap /dev/nvme0n1p3
+swapon /dev/nvme0n1p3
 ```
 
 **NOTE:** This ensures the swap space is correctly set up for the new partition size.
@@ -253,7 +261,7 @@ Since your root filesystem is in the @ subvolume, you need to mount that specifi
 subvolume...
 
 ```
-mount -o subvol=@ /dev/sda2 /mnt
+mount -o subvol=@ /dev/nvme0n1p2 /mnt
 ```
 
 **NOTE:** This command mounts the "@" subvolume (which corresponds to your root "/"
@@ -275,7 +283,7 @@ mount --bind /sys/firmware/efi/efivars /mnt/sys/firmware/efi/efivars
 Mount the EFI partition...
 
 ```
-mount /dev/sda1 /mnt/boot/efi
+mount /dev/nvme0n1p1 /mnt/boot/efi
 ```
 
 ### Mount /@home
@@ -283,7 +291,7 @@ mount /dev/sda1 /mnt/boot/efi
 If you need to access your home directory, you can also mount the @home subvolume...
 
 ```
-mount -o subvol=@home /dev/sda2 /mnt/home
+mount -o subvol=@home /dev/nvme0n1p2 /mnt/home
 ```
 
 ### Chroot into the mounted environment
@@ -307,7 +315,7 @@ Use the blkid command to find the UUIDs of the new partitions...
 **EXAMPLE**
 
 ```
-blkid /dev/sda1 /dev/sda2 /dev/sda3
+blkid /dev/nvme0n1p1 /dev/nvme0n1p2 /dev/nvme0n1p3
 ```
 
 **NOTE:** The "UUID" of the boot partition is usually a shorter value (eg.: `UUID="CE4C-CFB1"`).
