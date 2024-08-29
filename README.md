@@ -371,13 +371,9 @@ exit
 reboot
 ```
 
-------
-
 # About
 
 vm-to-rh - Virtual Machine to Real Hardware 🄯 BSD-3-Clause  
 Eduardo Lúcio Amorim Costa  
 Brazil-DF 🇧🇷  
 https://www.linkedin.com/in/eduardo-software-livre/
-
-------
