@@ -10,6 +10,8 @@ We used as a basis for the process the transfer of a Manjaro (KDE) Linux install
 
 Let's go for it! 😎
 
+**IMPORTANT:** My life, my work and my passion is free software. Corrections, tweaks and improvements are very welcome (**pull requests** 😉)! Please consider giving us a ⭐, fork, support this project or even visit our professional profile (see [About](#about)). **Thanks!** 🥰
+
 ## Donations
 
 Please consider to deposit a donation through PayPal by clicking on the next button...
